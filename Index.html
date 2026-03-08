@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Melvin Koshy Reji — Technical Architect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:wght@300;400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #0a0905;
+  --surface:  #111009;
+  --card:     #161410;
+  --amber:    #d4a843;
+  --amber-dim:#8a6b28;
+  --amber-glow:rgba(212,168,67,.13);
+  --cream:    #f0e6cb;
+  --muted:    #6b6152;
+  --text:     #cfc4ad;
+  --white:    #f5ede0;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;cursor:none;overflow-x:hidden;}
+
+/* ── Cursor ── */
+#cursor{width:12px;height:12px;background:var(--amber);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .25s,height .25s;mix-blend-mode:screen;}
+#cursor-ring{width:38px;height:38px;border:1px solid rgba(212,168,67,.4);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .3s,height .3s;}
+
+/* ── Noise ── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;opacity:.3;}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--amber-dim);border-radius:2px;}
+
+/* ══════════════════════ NAV ══════════════════════ */
+nav{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:24px 56px;z-index:100;background:rgba(10,9,5,.95);border-bottom:1px solid rgba(212,168,67,.08);backdrop-filter:blur(4px);transition:padding .3s;}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:300;letter-spacing:.15em;color:var(--cream);text-decoration:none;}
+.nav-logo span{color:var(--amber);}
+.nav-links{display:flex;gap:36px;list-style:none;align-items:center;}
+.nav-links a{font-family:'DM Mono',monospace;font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .3s;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;right:0;height:1px;background:var(--amber);transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.nav-links a:hover{color:var(--amber);}
+.nav-links a:hover::after{transform:scaleX(1);}
+.nav-linkedin{color:var(--amber) !important;}
+
+/* ══════════════════════ HERO ══════════════════════ */
+#hero{
+  min-height:100vh;
+  display:grid;
+  /* Two equal columns — content is clipped to its own column */
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  align-items:center;
+  padding:0;
+  position:relative;
+  overflow:hidden;
+}
+.hero-orb{position:absolute;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,67,.07) 0%,transparent 70%);top:50%;right:6%;transform:translateY(-50%);pointer-events:none;}
+
+/* LEFT — border-right IS the divider, perfectly flush with the grid edge */
+.hero-content{
+  padding:140px 60px 80px 56px;
+  min-width:0;
+  overflow:hidden;
+  /* The divider: gradient border on the right side */
+  border-right:1px solid transparent;
+  border-image:linear-gradient(to bottom,transparent 0%,rgba(212,168,67,.3) 30%,rgba(212,168,67,.3) 70%,transparent 100%) 1;
+}
+.hero-tag{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.32em;text-transform:uppercase;color:var(--amber);margin-bottom:24px;opacity:0;animation:fadeUp .8s .2s forwards;}
+.hero-name{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,5.2vw,6.2rem);font-weight:300;line-height:.93;color:var(--white);margin-bottom:26px;opacity:0;animation:fadeUp .8s .4s forwards;}
+.hero-name em{font-style:italic;color:var(--amber);}
+.hero-desc{font-size:.92rem;line-height:1.88;color:var(--muted);margin-bottom:44px;opacity:0;animation:fadeUp .8s .6s forwards;}
+.hero-cta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;opacity:0;animation:fadeUp .8s .8s forwards;}
+.btn-primary{background:var(--amber);color:var(--bg);padding:13px 30px;font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;cursor:none;transition:background .3s,transform .3s;white-space:nowrap;border:none;}
+.btn-primary:hover{background:var(--cream);transform:translateY(-2px);}
+.btn-ghost{color:var(--muted);font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:color .3s;white-space:nowrap;}
+.btn-ghost:hover{color:var(--amber);}
+
+/* RIGHT — avatar panel */
+.hero-visual{display:flex;align-items:center;justify-content:center;position:relative;min-width:0;opacity:0;animation:fadeIn 1.2s .5s forwards;}
+.avatar-frame{width:280px;height:360px;position:relative;border:1px solid rgba(212,168,67,.22);flex-shrink:0;}
+.avatar-frame::before{content:'';position:absolute;inset:11px;border:1px solid rgba(212,168,67,.09);}
+.avatar-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1710,#0f0e0b);overflow:hidden;position:relative;}
+.avatar-initials{font-family:'Cormorant Garamond',serif;font-size:5rem;font-weight:300;font-style:italic;color:rgba(212,168,67,.16);user-select:none;}
+.avatar-deco{position:absolute;bottom:18px;right:18px;width:65px;height:65px;border-right:1px solid var(--amber-dim);border-bottom:1px solid var(--amber-dim);opacity:.45;}
+.avatar-badge{position:absolute;bottom:-15px;left:-15px;background:var(--amber);color:var(--bg);font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;padding:7px 15px;}
+.hero-stats{position:absolute;right:-8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:22px;}
+.stat{text-align:right;}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weight:300;color:var(--cream);line-height:1;}
+.stat-num span{color:var(--amber);}
+.stat-label{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
+
+/* ══════════════════════ SHARED SECTION STYLES ══════════════════════ */
+section{padding:100px 56px;}
+.eyebrow{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.35em;text-transform:uppercase;color:var(--amber);margin-bottom:18px;display:flex;align-items:center;gap:14px;}
+.eyebrow::before{content:'';width:36px;height:1px;background:var(--amber);flex-shrink:0;}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,3.8vw,3.6rem);font-weight:300;color:var(--white);line-height:1.1;margin-bottom:52px;}
+.sec-title em{font-style:italic;color:var(--amber);}
+
+/* ══════════════════════ ABOUT ══════════════════════ */
+#about{background:var(--surface);}
+.about-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:88px;align-items:start;}
+.about-left .sec-title{margin-bottom:0;}
+.about-body p{font-size:.96rem;line-height:1.9;color:var(--text);margin-bottom:22px;}
+.skills-wrap{margin-top:36px;}
+.skill-cat{margin-bottom:22px;}
+.skill-cat-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--amber);margin-bottom:9px;}
+.pills{display:flex;flex-wrap:wrap;gap:7px;}
+.pill{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--text);border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);padding:4px 12px;border-radius:2px;transition:border-color .3s,color .3s;}
+.pill:hover{border-color:rgba(212,168,67,.4);color:var(--amber);}
+
+/* ══════════════════════ ACHIEVEMENTS ══════════════════════ */
+#achievements{background:var(--bg);}
+.ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.ach-card{background:var(--card);padding:44px 40px;border:1px solid rgba(255,255,255,.04);position:relative;overflow:hidden;transition:transform .4s,border-color .4s;}
+.ach-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--amber-glow),transparent 60%);opacity:0;transition:opacity .4s;}
+.ach-card:hover{transform:translateY(-5px);border-color:rgba(212,168,67,.22);}
+.ach-card:hover::before{opacity:1;}
+.ach-icon{font-size:1.9rem;margin-bottom:16px;display:block;}
+.ach-stat{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;color:var(--amber);line-height:1;margin-bottom:10px;}
+.ach-title{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--white);margin-bottom:12px;text-transform:uppercase;letter-spacing:.04em;}
+.ach-desc{font-size:.86rem;line-height:1.82;color:var(--muted);}
+
+/* ══════════════════════ EXPERIENCE ══════════════════════ */
+#experience{background:var(--surface);}
+.timeline{max-width:840px;position:relative;padding-left:38px;}
+.timeline::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:1px;background:linear-gradient(to bottom,var(--amber),transparent);}
+.tl-item{position:relative;padding-bottom:60px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-item::before{content:'';position:absolute;left:-42px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--amber);border:2px solid var(--surface);box-shadow:0 0 10px var(--amber);}
+.tl-date{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.2em;color:var(--amber);margin-bottom:8px;}
+.tl-role{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;color:var(--white);margin-bottom:4px;}
+.tl-company{font-size:.84rem;color:var(--muted);font-style:italic;margin-bottom:18px;}
+.tl-bullets{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.tl-bullets li{font-size:.86rem;line-height:1.78;color:var(--text);display:flex;gap:10px;align-items:flex-start;}
+.tl-bullets li::before{content:'▸';color:var(--amber);flex-shrink:0;margin-top:3px;font-size:.68rem;}
+
+/* ══════════════════════ PROJECTS ══════════════════════ */
+#projects{background:var(--bg);}
+.projects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.proj-card{background:var(--card);padding:38px 34px;border:1px solid rgba(255,255,255,.04);position:relative;overflow:hidden;transition:transform .4s,border-color .4s;display:flex;flex-direction:column;}
+.proj-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--amber-glow),transparent 60%);opacity:0;transition:opacity .4s;}
+.proj-card:hover{transform:translateY(-5px);border-color:rgba(212,168,67,.22);}
+.proj-card:hover::before{opacity:1;}
+.proj-num{font-family:'Cormorant Garamond',serif;font-size:3.2rem;font-weight:300;color:rgba(212,168,67,.1);line-height:1;margin-bottom:18px;}
+.proj-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.proj-tag{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;color:var(--amber-dim);border:1px solid rgba(212,168,67,.18);padding:3px 9px;}
+.proj-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;color:var(--cream);margin-bottom:12px;line-height:1.25;}
+.proj-desc{font-size:.84rem;line-height:1.8;color:var(--muted);flex:1;margin-bottom:26px;}
+.proj-link{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:gap .3s;margin-top:auto;}
+.proj-link:hover{gap:14px;}
+.proj-link::after{content:'→';}
+.projects-footer{margin-top:44px;text-align:center;}
+
+/* ══════════════════════ CERTIFICATIONS ══════════════════════ */
+#certifications{background:var(--surface);}
+.cert-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.cert-card{background:var(--card);border:1px solid rgba(255,255,255,.04);padding:24px;display:flex;gap:14px;align-items:flex-start;transition:border-color .3s,transform .3s;}
+.cert-card:hover{border-color:rgba(212,168,67,.25);transform:translateY(-3px);}
+.cert-icon{font-size:1.3rem;flex-shrink:0;}
+.cert-issuer{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:5px;}
+.cert-name{font-size:.84rem;color:var(--cream);line-height:1.4;}
+
+/* ══════════════════════ AWARDS ══════════════════════ */
+#awards{background:var(--bg);}
+.awards-list{display:flex;flex-direction:column;gap:1px;max-width:760px;}
+.award-item{background:var(--card);padding:20px 28px;display:flex;align-items:center;gap:20px;border:1px solid rgba(255,255,255,.04);transition:border-color .3s;}
+.award-item:hover{border-color:rgba(212,168,67,.2);}
+.award-emoji{font-size:1.35rem;flex-shrink:0;}
+.award-title{font-size:.92rem;color:var(--white);font-weight:700;margin-bottom:3px;}
+.award-org{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--amber);text-transform:uppercase;}
+.award-note{font-size:.76rem;color:var(--muted);margin-top:3px;}
+
+/* ══════════════════════ CONTACT ══════════════════════ */
+#contact{background:var(--surface);text-align:center;position:relative;overflow:hidden;}
+#contact::before{content:'';position:absolute;width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,67,.05) 0%,transparent 70%);left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;}
+.contact-inner{position:relative;max-width:640px;margin:0 auto;}
+.contact-big{font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,5vw,5rem);font-weight:300;font-style:italic;color:var(--white);line-height:1.08;margin-bottom:24px;}
+.contact-sub{font-size:.92rem;color:var(--muted);line-height:1.85;margin-bottom:48px;}
+.contact-email{display:inline-block;font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-style:italic;color:var(--amber);text-decoration:none;border-bottom:1px solid rgba(212,168,67,.3);padding-bottom:3px;margin-bottom:52px;transition:color .3s,border-color .3s;}
+.contact-email:hover{color:var(--cream);border-color:var(--cream);}
+.social-links{display:flex;justify-content:center;gap:28px;flex-wrap:wrap;}
+.social-link{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .3s;display:inline-flex;align-items:center;gap:6px;}
+.social-link:hover{color:var(--amber);}
+.social-link svg{width:14px;height:14px;fill:currentColor;flex-shrink:0;}
+
+/* ══════════════════════ FOOTER ══════════════════════ */
+footer{border-top:1px solid rgba(255,255,255,.05);padding:36px 56px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+footer p{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;}
+footer a{color:var(--amber);text-decoration:none;}
+
+/* ══════════════════════ ANIMATIONS ══════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(26px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+/* Scroll-reveal — elements are VISIBLE by default; JS adds .will-animate to opt them in */
+.will-animate{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease;}
+.will-animate.in-view{opacity:1;transform:translateY(0);}
+
+/* ══════════════════════ RESPONSIVE ══════════════════════ */
+@media(max-width:1100px){
+  .cert-grid{grid-template-columns:repeat(2,1fr);}
+  .ach-grid{grid-template-columns:repeat(2,1fr);}
+  .hero-stats{display:none;}
+  .projects-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:1024px){
+  nav{padding:20px 28px;}
+  #hero{grid-template-columns:1fr;padding:0;}
+  .hero-content{padding:100px 28px 60px;border-right:none;border-bottom:1px solid rgba(212,168,67,.15);}
+  .hero-visual{display:none;}
+  section{padding:72px 28px;}
+  .about-grid{grid-template-columns:1fr;gap:44px;}
+  footer{flex-direction:column;text-align:center;padding:28px;}
+}
+@media(max-width:640px){
+  .nav-links{display:none;}
+  .hero-name{font-size:2.8rem;}
+  .cert-grid{grid-template-columns:1fr;}
+  .ach-grid{grid-template-columns:1fr;}
+  .projects-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <a href="#" class="nav-logo">Melvin Koshy Reji</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#achievements">Achievements</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#certifications">Certs</a></li>
+    <li><a href="#awards">Awards</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="https://www.linkedin.com/in/melvinkreji?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" class="nav-linkedin">LinkedIn ↗</a></li>
+  </ul>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div class="hero-orb"></div>
+
+  <!-- LEFT: border-right on this div IS the divider line -->
+  <div class="hero-content">
+    <p class="hero-tag">✦ Technical Architect · Mainframe &amp; Cloud</p>
+    <h1 class="hero-name">Melvin<br><em>Koshy Reji</em></h1>
+    <p class="hero-desc">
+      A decade of engineering excellence at the crossroads of Mainframe mastery
+      and cloud innovation. I turn complex financial challenges into scalable,
+      high-performance systems — and measurable business results.
+    </p>
+    <div class="hero-cta">
+      <a href="#experience" class="btn-primary">View Experience</a>
+      <a href="#contact" class="btn-ghost">Get in Touch →</a>
+      <a href="https://www.linkedin.com/in/melvinkreji?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" class="btn-ghost">LinkedIn ↗</a>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="hero-visual">
+    <div class="avatar-frame">
+      <div class="avatar-inner">
+        <span class="avatar-initials">MKR</span>
+        <div class="avatar-deco"></div>
+      </div>
+      <div class="avatar-badge">Open to Opportunities</div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">11<span>+</span></div><div class="stat-label">Years Exp.</div></div>
+      <div class="stat"><div class="stat-num">$50<span>M</span></div><div class="stat-label">Cost Saved</div></div>
+      <div class="stat"><div class="stat-num">10<span>+</span></div><div class="stat-label">Certifications</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ABOUT ══ -->
+<section id="about">
+  <div class="about-grid">
+    <div>
+      <p class="eyebrow">About Me</p>
+      <h2 class="sec-title">Engineering solutions that <em>endure.</em></h2>
+    </div>
+    <div class="about-body">
+      <p>I'm a Technical Architect with a rare combination of deep Mainframe expertise and modern cloud fluency. Over 10+ years, I've architected fraud prevention engines, led cloud modernization initiatives, and built core banking products trusted by millions of customers across the US.</p>
+      <p>Whether leading Agile teams as a Technical Product Owner, designing RESTful APIs that bridge legacy and cloud, or automating entire developer workflows from scratch — I bring both strategic vision and hands-on technical precision to every challenge I take on.</p>
+      <div class="skills-wrap">
+        <div class="skill-cat">
+          <div class="skill-cat-label">Mainframe</div>
+          <div class="pills"><span class="pill">COBOL</span><span class="pill">CICS</span><span class="pill">JCL</span><span class="pill">IBM DB2</span><span class="pill">REXX</span><span class="pill">VSAM</span><span class="pill">IMSDB</span><span class="pill">SAS</span><span class="pill">IBM Webservices</span><span class="pill">AS400</span><span class="pill">Tandem</span></div>
+        </div>
+        <div class="skill-cat">
+          <div class="skill-cat-label">Programming &amp; APIs</div>
+          <div class="pills"><span class="pill">Python</span><span class="pill">Java Spring Boot</span><span class="pill">R</span><span class="pill">C / C++</span><span class="pill">RESTful APIs</span><span class="pill">SOAP / XML</span><span class="pill">HTML</span></div>
+        </div>
+        <div class="skill-cat">
+          <div class="skill-cat-label">Cloud &amp; DevOps</div>
+          <div class="pills"><span class="pill">Azure Cloud</span><span class="pill">Azure APIM</span><span class="pill">App Services</span><span class="pill">Microfocus COBOL</span><span class="pill">Containerization</span><span class="pill">GitHub</span></div>
+        </div>
+        <div class="skill-cat">
+          <div class="skill-cat-label">Tooling</div>
+          <div class="pills"><span class="pill">Jira</span><span class="pill">Confluence</span><span class="pill">Swagger</span><span class="pill">Postman</span><span class="pill">SOAP UI</span><span class="pill">Xpeditor</span><span class="pill">Omegamon</span><span class="pill">File Aid</span><span class="pill">CA7</span><span class="pill">BMC</span><span class="pill">Endeavour</span></div>
+        </div>
+        <div class="skill-cat">
+          <div class="skill-cat-label">Vendor Ecosystem</div>
+          <div class="pills"><span class="pill">CyberArk</span><span class="pill">Experian Bureau</span><span class="pill">Precise ID</span><span class="pill">Equifax Bureau</span><span class="pill">FALCON</span><span class="pill">Fiserv</span><span class="pill">FIS Decision Solutions</span></div>
+        </div>
+        <div class="skill-cat">
+          <div class="skill-cat-label">Domains</div>
+          <div class="pills"><span class="pill">Banking &amp; Fraud</span><span class="pill">Risk Management</span><span class="pill">Credit / Debit Cards</span><span class="pill">Core Banking</span><span class="pill">Retail Finance</span><span class="pill">Data Science</span><span class="pill">Machine Learning</span><span class="pill">Agile / Scrum</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ACHIEVEMENTS ══ -->
+<section id="achievements">
+  <p class="eyebrow">Key Achievements</p>
+  <h2 class="sec-title">Impact that speaks <em>for itself.</em></h2>
+  <div class="ach-grid">
+    <div class="ach-card">
+      <span class="ach-icon">🛡️</span>
+      <div class="ach-stat">$50M+</div>
+      <div class="ach-title">Fraud Loss Eliminated Annually</div>
+      <p class="ach-desc">Architected a product that cut fraud losses by over $50 million per year while helping the business grow revenue to $10 billion annually — powered by Power-curve and ATB tooling that transformed New Account Processing speed-to-market.</p>
+    </div>
+    <div class="ach-card">
+      <span class="ach-icon">📉</span>
+      <div class="ach-stat">20%</div>
+      <div class="ach-title">Delinquency Rate Reduction</div>
+      <p class="ach-desc">Overhauled core fraud detection products to sharpen accuracy and responsiveness, delivering a measurable 20% reduction in customer delinquency rates — protecting revenue and strengthening trust across enterprise financial platforms.</p>
+    </div>
+    <div class="ach-card">
+      <span class="ach-icon">🚀</span>
+      <div class="ach-stat">$5M</div>
+      <div class="ach-title">First-Year Fintech Revenue Growth</div>
+      <p class="ach-desc">Conceived and delivered a behavioural model product for a Fintech client from the ground up — generating $5 million in new revenue in its very first year of deployment, setting a new benchmark for data-driven decision making.</p>
+    </div>
+    <div class="ach-card">
+      <span class="ach-icon">☁️</span>
+      <div class="ach-stat">25%</div>
+      <div class="ach-title">Operational Cost Cut via Cloud Migration</div>
+      <p class="ach-desc">Spearheaded a full Mainframe-to-Azure modernization initiative using Microfocus COBOL, Python, and Spring Boot — delivering a seamless transition that boosted system efficiency and slashed operational costs by 25%.</p>
+    </div>
+    <div class="ach-card">
+      <span class="ach-icon">⚡</span>
+      <div class="ach-stat">25%</div>
+      <div class="ach-title">Platform Optimisation &amp; Cost Reduction</div>
+      <p class="ach-desc">Delivered a 25% MIPS reduction across enterprise mainframe platforms through deep performance tuning, workload optimisation, zIIP offloading, and adoption of modern compiler and hardware capabilities — translating directly into significant infrastructure cost savings.</p>
+    </div>
+    <div class="ach-card">
+      <span class="ach-icon">🤖</span>
+      <div class="ach-stat">25%</div>
+      <div class="ach-title">AI-Driven Productivity Improvement</div>
+      <p class="ach-desc">Pioneered AI-enabled automation and analytics use cases within application teams — embedding intelligent tooling into developer and support workflows, driving a measurable 25% uplift in overall team productivity.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ EXPERIENCE ══ -->
+<section id="experience">
+  <p class="eyebrow">Experience</p>
+  <h2 class="sec-title">Where I've <em>made an impact.</em></h2>
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-date">Oct 2023 — Present</div>
+      <div class="tl-role">Technical Lead / Architect</div>
+      <div class="tl-company">Kyndryl UK</div>
+      <ul class="tl-bullets">
+        <li>Act as Technical Lead and platform owner for large-scale, business-critical mainframe and hybrid cloud applications — accountable for design, development, testing, deployment, and live service operation end-to-end.</li>
+        <li>Provide production support leadership including incident management, root cause analysis, and problem resolution for high-availability platforms operating under strict SLA and regulatory requirements.</li>
+        <li>Lead enterprise mainframe modernisation initiatives, transforming monolithic COBOL applications into hybrid architectures using z/OS Connect EE, RESTful APIs, and cloud-native services.</li>
+        <li>Led migration of selected mainframe workloads to Azure Cloud using Micro Focus COBOL, Python, and Spring Boot — improving system agility and reducing operational costs by 25%.</li>
+        <li>Defined and executed technical roadmaps focused on platform currency, resilience, scalability, and commercial efficiency across both legacy and cloud environments.</li>
+        <li>Delivered mainframe optimisation initiatives resulting in a 25% MIPS reduction through performance analysis, transaction tuning, zIIP offloading, and batch and compiler optimisation.</li>
+        <li>Analysed and adopted new IBM z16 capabilities including Telum processor enhancements and AI acceleration, contributing to a 10–15% reduction in CPU consumption across key workloads.</li>
+        <li>Introduced AI-driven automation and analytics use cases within application teams, improving developer and support productivity by 25%.</li>
+        <li>Build and maintain trusted relationships with stakeholders, internal customers, and third-party vendors — managing delivery quality, contractual obligations, and SLA performance.</li>
+        <li>Contribute to financial planning, portfolio shaping, and resource planning, supporting decisions on permanent and flexible resourcing models.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Oct 2019 — Oct 2023</div>
+      <div class="tl-role">Developer Specialist / Technical Architect</div>
+      <div class="tl-company">Bread Financial (formerly Alliance Data)</div>
+      <ul class="tl-bullets">
+        <li>Architected and delivered mission-critical New Account Processing and Authorization Products, generating significant YOY revenue across both Legacy Mainframe and cloud environments.</li>
+        <li>Designed a state-of-the-art alerting and monitoring framework for all 24×7 systems, dramatically improving operational visibility and incident response.</li>
+        <li>Integrated FALCON into the Authorization product, introducing a powerful fraud-detection layer that measurably reduced transaction-level fraud losses.</li>
+        <li>Built RESTful APIs within the Mainframe ecosystem, seamlessly bridging legacy infrastructure with modern cloud platforms.</li>
+        <li>Served as Technical Product Owner within an Agile squad — translating complex business needs into clear engineering deliverables with precision and clarity.</li>
+        <li>Engineered REXX and Python automation tooling that eliminated repetitive manual tasks, accelerating the entire delivery pipeline.</li>
+        <li>Strategically managed vendor relationships to ensure consistent, on-time delivery aligned with business goals.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Dec 2016 — Oct 2019</div>
+      <div class="tl-role">Senior Programmer Analyst</div>
+      <div class="tl-company">Fidelity National Information Services (FIS)</div>
+      <ul class="tl-bullets">
+        <li>Built new Mainframe risk-based products that hardened fraud prevention at the account opening stage, significantly reducing fraudulent activity exposure.</li>
+        <li>Developed advanced behavioural models for debit account validation using rich bureau data, improving risk scoring accuracy.</li>
+        <li>Enhanced the Qualifile and ChexAdvisor product suite, directly contributing to measurable increases in product revenue.</li>
+        <li>Replaced costly SAS scripts with purpose-built COBOL and JCL solutions, eliminating expensive third-party SAS licensing.</li>
+        <li>Engineered a reusable, application-agnostic web service for SOAP XML calls — adopted across multiple teams and applications.</li>
+        <li>Conducted a comprehensive performance scan across all Mainframe products, resolving bottlenecks and elevating SLA compliance.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Jun 2014 — Dec 2016</div>
+      <div class="tl-role">Senior Software Engineer</div>
+      <div class="tl-company">Capgemini</div>
+      <ul class="tl-bullets">
+        <li>Delivered PLCC and DC credit card services for Synchrony Financial (GE Capital), supporting major retailers including Walmart and Amazon.</li>
+        <li>Led the production support team through high-severity incidents, ensuring swift SLA-compliant resolution while mentoring engineers.</li>
+        <li>Owned the full project lifecycle — from requirements analysis and design through development, testing, and verification.</li>
+        <li>Drove delivery using both Scrum and Kanban frameworks; primary escalation point for vendor and stakeholder management.</li>
+        <li>Championed a culture of innovation, earning the Kaizen VI Award for automating high-impact manual project lifecycle activities.</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ GITHUB PROJECTS ══ -->
+<section id="projects">
+  <p class="eyebrow">Open Source &amp; Projects</p>
+  <h2 class="sec-title">Work I've built &amp; <em>shared.</em></h2>
+  <div class="projects-grid">
+
+    <div class="proj-card">
+      <div class="proj-num">01</div>
+      <div class="proj-tags">
+        <span class="proj-tag">COBOL</span>
+        <span class="proj-tag">Python</span>
+        <span class="proj-tag">Azure</span>
+      </div>
+      <div class="proj-title">Your Project Title Here</div>
+      <p class="proj-desc">Describe what this project does, the problem it solves, and the impact it had. Replace this placeholder with your real GitHub project.</p>
+      <a href="https://github.com/melvinkoshyreji/project-one" target="_blank" class="proj-link">View on GitHub</a>
+    </div>
+
+    <div class="proj-card">
+      <div class="proj-num">02</div>
+      <div class="proj-tags">
+        <span class="proj-tag">RESTful API</span>
+        <span class="proj-tag">REXX</span>
+        <span class="proj-tag">JCL</span>
+      </div>
+      <div class="proj-title">Your Project Title Here</div>
+      <p class="proj-desc">Describe what this project does, the problem it solves, and the impact it had. Replace this placeholder with your real GitHub project.</p>
+      <a href="https://github.com/melvinkoshyreji/project-two" target="_blank" class="proj-link">View on GitHub</a>
+    </div>
+
+    <div class="proj-card">
+      <div class="proj-num">03</div>
+      <div class="proj-tags">
+        <span class="proj-tag">Python</span>
+        <span class="proj-tag">Machine Learning</span>
+      </div>
+      <div class="proj-title">Your Project Title Here</div>
+      <p class="proj-desc">Describe what this project does, the problem it solves, and the impact it had. Replace this placeholder with your real GitHub project.</p>
+      <a href="https://github.com/melvinkoshyreji/project-three" target="_blank" class="proj-link">View on GitHub</a>
+    </div>
+
+  </div>
+  <div class="projects-footer">
+    <a href="https://github.com/melvinkoshyreji" target="_blank" class="btn-primary">View All Repos on GitHub ↗</a>
+  </div>
+</section>
+
+<!-- ══ CERTIFICATIONS ══ -->
+<section id="certifications">
+  <p class="eyebrow">Certifications &amp; Badges</p>
+  <h2 class="sec-title">A commitment to <em>lifelong mastery.</em></h2>
+  <div class="cert-grid">
+    <div class="cert-card"><span class="cert-icon">⚙️</span><div><div class="cert-issuer">Scaled Agile</div><div class="cert-name">Certified SAFe 5 Practitioner</div></div></div>
+    <div class="cert-card"><span class="cert-icon">☁️</span><div><div class="cert-issuer">Microsoft</div><div class="cert-name">Azure Fundamentals (AZ-900)</div></div></div>
+    <div class="cert-card"><span class="cert-icon">🖥️</span><div><div class="cert-issuer">IBM</div><div class="cert-name">Mainframe z15 Technical Advisor</div></div></div>
+    <div class="cert-card"><span class="cert-icon">🤖</span><div><div class="cert-issuer">LinkedIn Learning</div><div class="cert-name">Machine Learning &amp; AI Foundations</div></div></div>
+    <div class="cert-card"><span class="cert-icon">📊</span><div><div class="cert-issuer">IBM</div><div class="cert-name">Data Science for Business</div></div></div>
+    <div class="cert-card"><span class="cert-icon">🔬</span><div><div class="cert-issuer">IBM</div><div class="cert-name">Data Science Foundations</div></div></div>
+    <div class="cert-card"><span class="cert-icon">📦</span><div><div class="cert-issuer">IBM</div><div class="cert-name">Big Data Foundations</div></div></div>
+    <div class="cert-card"><span class="cert-icon">⛓️</span><div><div class="cert-issuer">IBM</div><div class="cert-name">IBM Blockchain Essentials</div></div></div>
+    <div class="cert-card"><span class="cert-icon">🏆</span><div><div class="cert-issuer">IBM</div><div class="cert-name">Master the Mainframe — Badge Holder (2019 &amp; 2020)</div></div></div>
+    <div class="cert-card"><span class="cert-icon">📡</span><div><div class="cert-issuer">BSNL</div><div class="cert-name">RF Engineer Certification</div></div></div>
+  </div>
+</section>
+
+<!-- ══ AWARDS ══ -->
+<section id="awards">
+  <p class="eyebrow">Recognitions</p>
+  <h2 class="sec-title">Celebrated by the <em>best in the field.</em></h2>
+  <div class="awards-list">
+    <div class="award-item">
+      <span class="award-emoji">🥇</span>
+      <div><div class="award-title">Semi Annual Award</div><div class="award-org">Bread Financial</div></div>
+    </div>
+    <div class="award-item">
+      <span class="award-emoji">🏅</span>
+      <div><div class="award-title">Department Award — Best Performer, IT</div><div class="award-org">Bread Financial</div><div class="award-note">Q1 2020 · Q4 2022 · Q2 2023 — three-time consecutive recognition</div></div>
+    </div>
+    <div class="award-item">
+      <span class="award-emoji">⭐</span>
+      <div><div class="award-title">Make A Difference Award</div><div class="award-org">Fidelity National Information Services (FIS)</div></div>
+    </div>
+    <div class="award-item">
+      <span class="award-emoji">💡</span>
+      <div><div class="award-title">Kaizen VI Award — Automation Excellence</div><div class="award-org">Capgemini</div><div class="award-note">Awarded for automating manual activities that transformed project delivery efficiency.</div></div>
+    </div>
+    <div class="award-item">
+      <span class="award-emoji">🖥️</span>
+      <div><div class="award-title">Master the Mainframe — Badge Holder</div><div class="award-org">IBM</div><div class="award-note">Consecutive badge holder 2019 &amp; 2020 — recognising elite Mainframe proficiency.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTACT ══ -->
+<section id="contact">
+  <div class="contact-inner">
+    <p class="eyebrow" style="justify-content:center;margin-bottom:20px;">Let's Connect</p>
+    <h2 class="contact-big">Ready to build something extraordinary?</h2>
+    <p class="contact-sub">Whether it's a complex enterprise architecture challenge, a cloud modernization project, or a high-stakes Fintech product — I bring the experience, the vision, and the drive to make it happen. Let's talk.</p>
+    <a href="mailto:melvinkreji@gmail.com" class="contact-email">melvinkreji@gmail.com</a>
+    <div class="social-links">
+      <!-- LinkedIn -->
+      <a href="https://www.linkedin.com/in/melvinkreji?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" class="social-link">
+        <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+      <!-- GitHub -->
+      <a href="https://github.com/melvinkoshyreji" target="_blank" class="social-link">
+        <svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        GitHub
+      </a>
+      <!-- Email -->
+      <a href="mailto:melvinkreji@gmail.com" class="social-link">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        Email
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <p>© 2025 Melvin Koshy Reji — Technical Architect</p>
+  <p>Mainframe · Cloud · Fintech · <a href="mailto:melvinkreji@gmail.com">melvinkreji@gmail.com</a></p>
+</footer>
+
+<script>
+  /* ── Cursor ── */
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursor-ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+  (function tick(){
+    cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+    rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    requestAnimationFrame(tick);
+  })();
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{ cursor.style.width='20px'; cursor.style.height='20px'; ring.style.width='58px'; ring.style.height='58px'; });
+    el.addEventListener('mouseleave',()=>{ cursor.style.width='12px'; cursor.style.height='12px'; ring.style.width='38px'; ring.style.height='38px'; });
+  });
+
+  /* ── Scroll-reveal (enhancement only — content is visible without it) ── */
+  if('IntersectionObserver' in window){
+    /* Tag elements to animate */
+    const targets = document.querySelectorAll(
+      '.ach-card, .proj-card, .cert-card, .award-item, .tl-item, .about-body, .about-left'
+    );
+    targets.forEach(el => el.classList.add('will-animate'));
+
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if(e.isIntersecting){
+          e.target.classList.add('in-view');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    targets.forEach(el => io.observe(el));
+  }
+
+  /* ── Parallax orb ── */
+  const orb = document.querySelector('.hero-orb');
+  window.addEventListener('mousemove', e => {
+    const x=(e.clientX/window.innerWidth -.5)*28;
+    const y=(e.clientY/window.innerHeight-.5)*18;
+    if(orb) orb.style.transform=`translateY(-50%) translate(${x}px,${y}px)`;
+  });
+
+  /* ── Nav shrink on scroll ── */
+  const nav = document.querySelector('nav');
+  window.addEventListener('scroll', () => {
+    nav.style.padding = window.scrollY > 50 ? '16px 56px' : '24px 56px';
+  });
+</script>
+</body>
+</html>
